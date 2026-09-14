@@ -16,18 +16,15 @@ class MainApp extends StatelessWidget {
           title: const Align(
             alignment: Alignment.centerLeft,
             child: Text("Birdle"),
-          )
+          ),
         ),
-        body: Center(
-          child: GamePage(),
-        ),
+        body: Center(child: GamePage()),
       ),
     );
   }
 }
 
 class Tile extends StatelessWidget {
-
   const Tile(this.letter, this.hitType, {super.key});
 
   final String letter;
@@ -40,7 +37,7 @@ class Tile extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
-        color: switch(hitType) {
+        color: switch (hitType) {
           HitType.hit => Colors.green,
           HitType.partial => Colors.yellow,
           HitType.miss => Colors.grey,
@@ -51,8 +48,8 @@ class Tile extends StatelessWidget {
         child: Text(
           letter.toUpperCase(),
           style: Theme.of(context).textTheme.titleLarge,
-        )
-      )
+        ),
+      ),
     );
   }
 }
@@ -68,12 +65,65 @@ class GamePage extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         spacing: 5.0,
-        children: [..._game.guesses.map((guess) => Row(
-          spacing: 5.0,
-          children: [...guess.map((tile) => Tile(tile.char, tile.type))]
-        ))],
-      )
+        children: [
+          ..._game.guesses.map(
+            (guess) => Row(
+              spacing: 5.0,
+              children: [...guess.map((tile) => Tile(tile.char, tile.type))],
+            ),
+          ),
+          GuessInput(onSubmitGuess: (guess) {
+            print(guess);
+          })
+        ],
+      ),
     );
   }
-  
+}
+
+class GuessInput extends StatelessWidget {
+  GuessInput({super.key, required this.onSubmitGuess});
+
+  final void Function(String) onSubmitGuess;
+
+  final TextEditingController _textEditingController = TextEditingController();
+
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              maxLength: 5,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+              ),
+              controller: _textEditingController,
+              autofocus: true,
+              onSubmitted: (input) {
+                onSubmitGuess(_textEditingController.text.trim());
+                _textEditingController.clear();
+                _focusNode.requestFocus();
+              },
+            ),
+          ),
+        ),
+        IconButton(
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.arrow_circle_up),
+          onPressed: () {
+            onSubmitGuess(_textEditingController.text.trim());
+            _textEditingController.clear();
+            _focusNode.requestFocus();
+          }
+        ),
+      ],
+    );
+  }
 }
